@@ -1,0 +1,502 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Web Dev: Responsive + Interactive + API</title>
+    <style>
+        /* ===== GLOBAL STYLES ===== */
+        :root {
+            --primary: #4a6bff;
+            --secondary: #ff6b6b;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --success: #2ecc71;
+            --error: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f5f7ff;
+            color: var(--dark);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2, h3 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin: 2rem 0;
+            color: var(--primary);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #3a56d4;
+            transform: translateY(-2px);
+        }
+
+        /* ===== QUIZ STYLES ===== */
+        .quiz-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .question {
+            font-weight: bold;
+            margin: 1.5rem 0 1rem;
+            font-size: 1.2rem;
+        }
+
+        .options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .options label {
+            display: block;
+            padding: 12px;
+            background: #f1f3ff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .options label:hover {
+            background: #e0e5ff;
+        }
+
+        .options input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        #results {
+            margin-top: 1.5rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .correct {
+            background: rgba(46, 204, 113, 0.2);
+            color: var(--success);
+        }
+
+        .incorrect {
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--error);
+        }
+
+        /* ===== CAROUSEL STYLES ===== */
+        .carousel {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .carousel-inner {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .carousel-image {
+            min-width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+
+        .carousel-nav {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+            gap: 10px;
+        }
+
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: #ccc;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .dot.active {
+            background: var(--primary);
+        }
+
+        /* ===== API DATA STYLES ===== */
+        .api-data {
+            margin-top: 1.5rem;
+        }
+
+        .post {
+            background: white;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .post:hover {
+            transform: translateY(-5px);
+        }
+
+        .post h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .loading {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+        }
+
+        .error {
+            color: var(--error);
+            font-weight: bold;
+        }
+
+        /* ===== RESPONSIVE MEDIA QUERIES ===== */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .carousel-image {
+                height: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+                padding: 10px;
+            }
+
+            section {
+                padding: 1.5rem;
+            }
+
+            .carousel-image {
+                height: 200px;
+            }
+        }
+            .api-section {
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Advanced Web Development</h1>
+        
+       
+        <section id="quiz-section">
+            <h2>📝 Interactive Quiz</h2>
+            <div class="quiz-container">
+                <div id="quiz"></div>
+                <button id="submit">Submit Answers</button>
+                <div id="results"></div>
+            </div>
+        </section>
+
+        
+        <section id="carousel-section">
+            <h2>7 Wonders of the world</h2>
+            <div class="carousel">
+                <div class="carousel-inner">
+                    <img class="carousel-image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtAoaH2I_Hq-_hIJ34txQyFBVr7znGB3LiRculb_WtkXD5TCi4Z6vGE9-y_ZRRyvHD-30&usqp=CAU" alt="Colosseum">
+                    <img class="carousel-image" src="https://www.asiaodysseytravel.com/images/china-tours/group-tours/beijing-jinshanling-great-wall-700-01.jpg" alt="Great-Wall-of-China">
+                    <img class="carousel-image" src="https://cdn.britannica.com/86/179586-138-8B763D72/Overview-Chichen-Itza-Yucatan-Mexico.jpg?w=800&h=450&c=crop" alt="Chichén Itzá">
+                    <img class="carousel-image" src="https://www.practically.com/web/assets/blog/108/banner.jpeg" alt="Petra">
+                    <img class="carousel-image" src="https://www.intrepidtravel.com/adventures/wp-content/uploads/2018/06/1.-Intrepid-Travel-peru_machupicchu.jpg" alt="Machu Picchu">
+                    <img class="carousel-image" src="https://wp.en.aleteia.org/wp-content/uploads/sites/2/2021/10/shutterstock_511776115.jpg?resize=620,350&q=75" alt="Christ the Redeemer">
+                    <img class="carousel-image" src="https://img.peapix.com/5714e0a960724f3c9544e40910ee92a4_480.jpg" alt="Taj Mahal">
+                                
+                </div>
+                <div class="carousel-nav">
+                    <button class="prev">⬅️ Previous</button>
+                    <button class="next">Next ➡️</button>
+                </div>
+                <div class="carousel-dots"></div>
+            </div>
+        </section>
+    </div>
+        <section class="api-section">
+            <h2>😂 Random Joke Generator</h2>
+            <button id="fetch-joke">Get Random Joke</button>
+            <div id="joke-result" class="result">
+                <p>Click the button to get a joke!</p>
+            </div>
+        </section>
+
+    <script>
+        // ===== QUIZ FUNCTIONALITY =====
+        const quizData = [
+            {
+                question: "What is the most used programming language in 2023?",
+                options: ["Java", "Python", "JavaScript", "C#"],
+                correct: "JavaScript"
+            },
+            {
+                question: "Which CSS feature helps create responsive layouts?",
+                options: ["Media Queries", "CSS Variables", "Flexbox", "All of the above"],
+                correct: "All of the above"
+            },
+            {
+                question: "Which language runs in a web browser?",
+                options: ["Java", "Python", "JavaScript", "C++"],
+                correct: "JavaScript"
+            },
+            {
+                question: "What does CSS stand for?",
+                options: ["Computer Style Sheets", "Cascading Style Sheets", "Creative Style Sheets", "Colorful Style Sheets"],
+                correct: "Cascading Style Sheets"
+            },
+            {
+                question: "Which HTML tag is used for a hyperlink?",
+                options: ["link", "a", "href", "url"],
+                correct: "a"
+            }
+        ];
+
+        const quizContainer = document.getElementById('quiz');
+        const resultsContainer = document.getElementById('results');
+        const submitButton = document.getElementById('submit');
+
+        // Build the quiz
+        function buildQuiz() {
+            quizData.forEach((question, index) => {
+                const optionsHTML = question.options.map(option => `
+                    <label>
+                        <input type="radio" name="question${index}" value="${option}">
+                        ${option}
+                    </label>
+                `).join('');
+
+                quizContainer.innerHTML += `
+                    <div class="question">${index + 1}. ${question.question}</div>
+                    <div class="options">${optionsHTML}</div>
+                `;
+            });
+        }
+
+        // Check answers and show results
+        function showResults() {
+            const answerContainers = quizContainer.querySelectorAll('.options');
+            let score = 0;
+
+            quizData.forEach((question, index) => {
+                const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
+                const answerContainer = answerContainers[index];
+
+                if (selectedOption) {
+                    if (selectedOption.value === question.correct) {
+                        score++;
+                        answerContainer.classList.add('correct');
+                    } else {
+                        answerContainer.classList.add('incorrect');
+                    }
+                }
+            });
+
+            resultsContainer.innerHTML = `You scored ${score} out of ${quizData.length}!`;
+            resultsContainer.className = score === quizData.length ? 'correct' : 'incorrect';
+        }
+
+        // Initialize quiz
+        buildQuiz();
+        submitButton.addEventListener('click', showResults);
+
+        // ===== CAROUSEL FUNCTIONALITY =====
+        class Carousel {
+            constructor() {
+                this.carousel = document.querySelector('.carousel-inner');
+                this.images = document.querySelectorAll('.carousel-image');
+                this.prevBtn = document.querySelector('.prev');
+                this.nextBtn = document.querySelector('.next');
+                this.dotsContainer = document.querySelector('.carousel-dots');
+                this.currentIndex = 0;
+                this.totalImages = this.images.length;
+
+                // Initialize
+                this.initDots();
+                this.showImage(this.currentIndex);
+                this.startAutoSlide();
+
+                // Event listeners
+                this.prevBtn.addEventListener('click', () => this.prevImage());
+                this.nextBtn.addEventListener('click', () => this.nextImage());
+                this.dotsContainer.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('dot')) {
+                        this.currentIndex = Array.from(this.dotsContainer.children).indexOf(e.target);
+                        this.showImage(this.currentIndex);
+                    }
+                });
+            }
+
+            showImage(index) {
+                this.carousel.style.transform = `translateX(-${index * 100}%)`;
+                this.updateDots(index);
+            }
+
+            nextImage() {
+                this.currentIndex = (this.currentIndex + 1) % this.totalImages;
+                this.showImage(this.currentIndex);
+                this.resetAutoSlide();
+            }
+
+            prevImage() {
+                this.currentIndex = (this.currentIndex - 1 + this.totalImages) % this.totalImages;
+                this.showImage(this.currentIndex);
+                this.resetAutoSlide();
+            }
+
+            initDots() {
+                for (let i = 0; i < this.totalImages; i++) {
+                    const dot = document.createElement('div');
+                    dot.classList.add('dot');
+                    if (i === 0) dot.classList.add('active');
+                    this.dotsContainer.appendChild(dot);
+                }
+            }
+
+            updateDots(index) {
+                const dots = this.dotsContainer.querySelectorAll('.dot');
+                dots.forEach(dot => dot.classList.remove('active'));
+                dots[index].classList.add('active');
+            }
+
+            startAutoSlide() {
+                this.interval = setInterval(() => this.nextImage(), 5000);
+            }
+
+            resetAutoSlide() {
+                clearInterval(this.interval);
+                this.startAutoSlide();
+            }
+        }
+
+        // Initialize carousel
+        document.addEventListener('DOMContentLoaded', () => {
+            new Carousel();
+        });
+
+         // ===== JOKE API =====
+        const jokeBtn = document.getElementById('fetch-joke');
+        const jokeResult = document.getElementById('joke-result');
+
+        jokeBtn.addEventListener('click', fetchJoke);
+
+        async function fetchJoke() {
+            try {
+                jokeResult.innerHTML = '<p class="loading">Fetching a joke...</p>';
+                
+                const response = await fetch('https://v2.jokeapi.dev/joke/Any?safe-mode');
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch joke');
+                }
+                
+                const data = await response.json();
+                displayJoke(data);
+            } catch (error) {
+                jokeResult.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+
+        function displayJoke(joke) {
+            if (joke.type === 'twopart') {
+                jokeResult.innerHTML = `
+                    <p class="joke-setup">${joke.setup}</p>
+                    <p class="joke-punchline">${joke.delivery}</p>
+                `;
+            } else {
+                jokeResult.innerHTML = `
+                    <p class="joke-punchline">${joke.joke}</p>
+                `;
+            }
+        }
+
+        // Fetch weather for default city on load
+        window.addEventListener('load', () => {
+            if (API_KEY !== 'YOUR_API_KEY') {
+                fetchWeather();
+            } else {
+                weatherResult.innerHTML = `
+                    <p class="error">⚠️ Please get a free API key from 
+                    <a href="https://openweathermap.org/api" target="_blank">OpenWeatherMap</a> 
+                    and replace in the code</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
